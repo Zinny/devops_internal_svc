@@ -4,6 +4,8 @@
 // https://www.npmjs.com/package/express
 const express = require('express');
 
+const {v4: uuidv4} = require('uuid');
+
 // converts content in the request into parameter req.body
 // https://www.npmjs.com/package/body-parser
 const bodyParser = require('body-parser');
@@ -26,8 +28,8 @@ app.use(function (req, res, next) {
 // from a cloud data store
 const mockEvents = {
     events: [
-        { title: 'an event', id: 1, description: 'something really cool' },
-        { title: 'another event', id: 2, description: 'something even cooler' }
+        { title: 'an event', id: uuidv4(), description: 'something really cool', location: 'virtual' },
+        { title: 'another event', id: uuidv4(), description: 'something even cooler', location: 'virtual' }
     ]
 };
 
@@ -55,7 +57,8 @@ app.post('/event', (req, res) => {
     const ev = { 
         title: req.body.title, 
         description: req.body.description,
-        id : mockEvents.events.length + 1
+        location: req.body.location,
+        id :uuidv4()
      }
     // add to the mock array
     mockEvents.events.push(ev);
