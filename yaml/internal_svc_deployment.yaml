@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: internal-svc-deployment
+spec:
+  selector:
+    matchLabels:
+      app: data-svc-deployment
+  template:
+    metadata:
+      labels:
+        app: data-svc-deployment
+    spec:
+      containers:
+      - name: internal-container
+        image: beachcoder/internal:devops.1
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8082

@@ -4,7 +4,9 @@ node_modules
 test
 tmp
 log
-yamls
+yaml
 *.yaml
 Dockerfile
+.dockerignore
+*.md
 *.log
