@@ -40,9 +40,9 @@ pipeline {
             steps{
                 script {
                     echo 'pushing the image to docker hub' 
-                    // docker.withRegistry('',registryCredential){
-                    //     dockerImage.push("${env.BUILD_ID}")
-                    // }
+                    docker.withRegistry('',registryCredential){
+                        dockerImage.push("${env.BUILD_ID}")
+                    }
                 }
             }
         }     
