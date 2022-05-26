@@ -31,8 +31,8 @@ pipeline {
             steps{
                 script {
                     echo 'building image' 
-                    dockerImage = docker.build imageName
-                    echo dockerImage + 'image built'
+                    dockerImage = docker.build("{env.imageName}:${env.BUILD_ID}")
+                    echo 'image built'
                 }
             }
             }
@@ -40,9 +40,9 @@ pipeline {
             steps{
                 script {
                     echo 'pushing the image to docker hub' 
-                    docker.withRegistry('',registryCredential){
-                        dockerImage.push("$BUILD_NUMBER")
-                    }
+                    // docker.withRegistry('',registryCredential){
+                    //     dockerImage.push("${env.BUILD_ID}")
+                    // }
                 }
             }
         }     
@@ -56,15 +56,15 @@ pipeline {
                     }
             steps {
                 echo 'Get cluster credentials'
-                sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project roidtc-may2022-u300'
-                sh "kubectl set image deployment/internal-svc-deployment internal-container=${env.imageName}:${env.BUILD_NUMBER}"
+                // sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project roidtc-may2022-u300'
+                // sh "kubectl set image deployment/internal-svc-deployment internal-container=${env.imageName}:${env.BUILD_ID}"
 
              }
         }     
         stage('Remove local docker image') {
             steps{
                 // sh "docker rmi $imageName:latest"
-                sh "docker rmi $imageName:$BUILD_NUMBER"
+                // sh "docker rmi ${env.dockerImage}"
             }
         }
     }
