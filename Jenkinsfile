@@ -57,7 +57,7 @@ pipeline {
             steps {
                 echo 'Get cluster credentials'
                 sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project roidtc-may2022-u300'
-                sh "kubectl set image deployment/internal-svc-deployment internal-container=$dockerImage"
+                sh "kubectl set image deployment/internal-svc-deployment internal-container=${env.imageName}:${env.BUILD_ID}"
 
              }
         }     
@@ -65,7 +65,7 @@ pipeline {
             steps{
                 echo "pending"
                 // sh "docker rmi $imageName:latest"
-                // sh "docker rmi ${env.dockerImage}"
+                // sh "docker rmi ${env.imageName}:${env.BUILD_ID}"
             }
         }
     }
