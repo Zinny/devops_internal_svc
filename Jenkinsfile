@@ -63,6 +63,7 @@ pipeline {
         }     
         stage('Remove local docker image') {
             steps{
+                echo "pending"
                 // sh "docker rmi $imageName:latest"
                 // sh "docker rmi ${env.dockerImage}"
             }
