@@ -1,42 +1,71 @@
-
 pipeline {
-    agent none 
+    agent any 
+    environment {
+        registryCredential = 'dockerhub'
+        imageName = 'beachcoder/internal'
+        dockerImage = ''
+        }
     stages {
         stage('Run the tests') {
              agent {
                 docker { 
-                    image 'node:18-alpine'
+                    image 'node:14-alpine'
                     args '-e HOME=/tmp -e NPM_CONFIG_PREFIX=/tmp/.npm'
+                    reuseNode true
                 }
             }
             steps {
-                echo 'Retrieving source from github' 
+                echo 'Retrieve source from github' 
                 git branch: 'master',
                     url: 'https://github.com/beachedcoder/devops_internal_svc.git'
-                echo 'showing source files in git repo?' 
+                echo 'showing files from repo?' 
                 sh 'ls -a'
                 echo 'install dependencies' 
                 sh 'npm install'
                 echo 'Run tests'
                 sh 'npm test'
-                echo 'Tests passed on to build and deploy Docker container'
+                echo 'Testing completed'
             }
         }
-         stage('Build and deploy the container') {
+        stage('Building image') {
+            steps{
+                script {
+                    echo 'building image' 
+                    dockerImage = docker.build imageName
+                    echo dockerImage + 'image built'
+                }
+            }
+            }
+        stage('Push Image') {
+            steps{
+                script {
+                    echo 'pushing the image to docker hub' 
+                    docker.withRegistry('',registryCredential){
+                        dockerImage.push("$BUILD_NUMBER")
+                    }
+                }
+            }
+        }     
+         stage('deploy to k8s') {
              agent {
                 docker { 
                     image 'google/cloud-sdk:latest'
                     args '-e HOME=/tmp'
+                    reuseNode true
                         }
                     }
             steps {
-                echo "submit gcr.io/roidtc-april-2022-u100/external:v2.${env.BUILD_ID}"
-                sh "gcloud builds submit -t gcr.io/roidtc-april-2022-u100/external:v2.${env.BUILD_ID} ."
                 echo 'Get cluster credentials'
-                sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project roidtc-april-2022-u100'
-                echo "Update the image to use gcr.io/roidtc-april-2022-u100/external:v2.${env.BUILD_ID}"
-                sh "kubectl set image deployment/demo-ui demo-ui=gcr.io/roidtc-april-2022-u100/external:v2.${env.BUILD_ID}"
+                sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project roidtc-may2022-u300'
+                sh "kubectl set image deployment/internal-svc-deployment internal-container=${env.imageName}:${env.BUILD_NUMBER}"
+
+             }
+        }     
+        stage('Remove local docker image') {
+            steps{
+                sh "docker rmi $imageName:latest"
+                sh "docker rmi $imageName:$BUILD_NUMBER"
             }
-        }            
+        }
     }
 }
