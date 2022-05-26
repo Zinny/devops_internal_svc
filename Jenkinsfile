@@ -65,8 +65,7 @@ pipeline {
             steps{
                 echo "pending"
                 // sh "docker rmi $imageName:latest"
-                // sh "docker rmi ${env.imageName}:${env.BUILD_ID}"
-                sh "docker iamge prune -a -f"
+                sh "docker rmi ${env.imageName}:${env.BUILD_ID}"
             }
         }
     }
